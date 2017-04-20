@@ -42,6 +42,11 @@ deactivate nondestructive
 
 VIRTUAL_ENV="/home/jared/Desktop/code/slack_bot/starterbot"
 export VIRTUAL_ENV
+token='xoxb-171922337587-GZh6OrRfPSVkUOYooD6ZIvBU'
+export token
+bot_id='U51T49XH9'
+export bot_id
+
 
 _OLD_VIRTUAL_PATH="$PATH"
 PATH="$VIRTUAL_ENV/bin:$PATH"
