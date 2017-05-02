@@ -30,6 +30,11 @@ def handle_command(command, channel):
     # slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
 
 
+# this function will query the database for total articles and return it 
+
+# def get_articles_count():
+	
+
 def parse_slack_output(slack_rtm_output):
     """
         The Slack Real Time Messaging API is an events firehose.
@@ -55,7 +60,7 @@ if __name__ == "__main__":
 		while True:
 
 			if datetime.date.today() == targetDate:
-				print("fired that event!!")
+				# num_articles = get_articles_count()
 				targetDate += datetime.timedelta(days = 1)
 				slack_client.api_call("chat.postMessage", channel='capstone_bot_testing', text="HEY THIS WORKS!", as_user=True)
 
