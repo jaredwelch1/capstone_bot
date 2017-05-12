@@ -4,6 +4,16 @@ Bot for slack channel with a capstone group project.
 
 ## ToDo
 
-- Put tokens in virtual env on aws instance
+- Put tokens in virtual env 
 
-- allow slack bot to run on the VM
+- Create automatic queries for:
+
+	- count of articles
+
+	- size of database (need to convert to readable memory size)
+
+	- time started
+
+	- time finished
+
+	- total time
