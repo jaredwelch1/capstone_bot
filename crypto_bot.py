@@ -5,6 +5,12 @@ import datetime
 from _thread import *
 import requests
 
+# channel for capstone_bot_testing
+# C52Q0EE0N
+
+# channel for crypto_reporting
+# C7BDY3HAB
+
 class capstone_bot(object):
 
 	def __init__(self):
@@ -13,7 +19,9 @@ class capstone_bot(object):
 		
 		# constants
 		self.AT_BOT = "<@" + BOT_ID +">"
+		self.reporting_channel = 'C7BDY3HAB'		
 		
+
 		# instantiate Slack & Twilio clients
 		self.slack_client = SlackClient(os.environ.get('token'))
 
@@ -70,10 +78,12 @@ class capstone_bot(object):
 		if command in self.valid_commands:
 			
 			if command == 'report':
-				if args[0] in self.tracked_coins:
-					self.postReport(output['channel'], args[0])
+				if len(args) > 0:
+					if args[0] in self.tracked_coins:
+						self.postReport(channel=output['channel'], symbol=args[0])
+						# print(output['channel'])
 				else:
-					self.postReport(output['channel'])
+					self.postReport()
 		
 
 	    # slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
@@ -91,7 +101,8 @@ class capstone_bot(object):
 					return output
 		return None
 	
-	def postReport(self, channel, symbol=None):
+	# default the report to the reporting channel, unless a channel is given
+	def postReport(self, channel='C7BDY3HAB', symbol=None):
 		r = requests.get(self.api_url)
 		coins = r.json()
 		message = ''
