@@ -4,6 +4,7 @@ from slackclient import SlackClient
 import datetime
 from _thread import *
 import requests
+import configparser
 
 # channel for capstone_bot_testing
 # C52Q0EE0N
@@ -19,16 +20,24 @@ class capstone_bot(object):
 		
 		# constants
 		self.AT_BOT = "<@" + BOT_ID +">"
-		self.reporting_channel = 'C7BDY3HAB'		
+		self.reporting_channel = 'C52Q0EE0N'		
 		
 
 		# instantiate Slack & Twilio clients
 		self.slack_client = SlackClient(os.environ.get('token'))
 
-		self.valid_commands = ['report']
+		self.valid_commands = ['report', 'add']
 
 		# list of coin symbols loaded from local .conf 
-		self.tracked_coins = ['BTC', 'ETH', 'WTC', 'OMG', 'NEO', 'GAS']		
+		self.tracked_coins = []
+
+		self.config = configparser.ConfigParser()
+
+		self.config.read('config.ini')
+		
+		for sym in self.config['COINS']:
+			self.tracked_coins.append(sym.upper())
+		
 
 		self.api_url = 'https://api.coinmarketcap.com/v1/ticker/'
 
@@ -84,8 +93,13 @@ class capstone_bot(object):
 						# print(output['channel'])
 				else:
 					self.postReport()
-		
-
+			if command == 'add':
+				if len(args) < 1:
+					error_msg = "Invalid use of add command. Usage: add <symbol>"
+					self.slack_client.api_call("chat.postMessage", channel=output['channel'], 
+									text=error_msg, as_user=True)		
+				else:
+					self.add_coin(args[0], output['channel'])
 	    # slack_client.api_call("chat.postMessage", channel=channel, text=response, as_user=True)
 
 	def parse_slack_output(self,slack_rtm_output):
@@ -102,7 +116,7 @@ class capstone_bot(object):
 		return None
 	
 	# default the report to the reporting channel, unless a channel is given
-	def postReport(self, channel='C7BDY3HAB', symbol=None):
+	def postReport(self, channel='C52Q0EE0N', symbol=None):
 		r = requests.get(self.api_url)
 		coins = r.json()
 		message = ''
@@ -117,15 +131,21 @@ class capstone_bot(object):
 					vol_24 = '$'
 					vol_24 += c['24h_volume_usd']
 					ch_7d = c['percent_change_7d']
-					ch_7d += '%'				
+					#ch_7d += '%'				
 					ch_24h = c['percent_change_24h']
 					ch_24h += '%'				
 					ch_1h = c['percent_change_1h']
 					btc_val = c['price_btc']
 					usd_val = c['price_usd']
 				
-					message = '{:3}: \n\t 24hr change: {:5} \n\t btc val: {:14} \n\t USD: ${:6}'.format(sym, ch_24h, btc_val, usd_val) 
-					self.slack_client.api_call("chat.postMessage", channel=channel, text=message, as_user=True)
+					message = '{:3}:\n\t24hr' 
+					message += 'change: {:5}\n\t'
+					message += '1hr change: {:5}\n\t'
+					message += 'btc val: {:14}\n\t'
+					message += 'USD: ${:6}'
+					message = message.format(sym, ch_24h, ch_1h, btc_val, usd_val) 
+					self.slack_client.api_call("chat.postMessage", channel=channel, 
+									text=message, as_user=True)
 		else:
 			for c in coins:
 				if c['symbol'] == symbol:
@@ -133,21 +153,38 @@ class capstone_bot(object):
 					vol_24 = '$'
 					vol_24 += c['24h_volume_usd']
 					ch_7d = c['percent_change_7d']
-					ch_7d += '%'				
+					#ch_7d += '%'				
 					ch_24h = c['percent_change_24h']
 					ch_24h += '%'				
 					ch_1h = c['percent_change_1h']
 					btc_val = c['price_btc']
 					usd_val = c['price_usd']
 				
-					message = '{:3}: \n\t 24hr change: {:5} \n\t btc val: {:14} \n\t USD: ${:6}'.format(sym, ch_24h, btc_val, usd_val) 
-					self.slack_client.api_call("chat.postMessage", channel=channel, text=message, as_user=True)
-# this function will query the database for total articles and return it 
+					message = '{:3}:\n\t24hr' 
+					message += 'change: {:5}\n\t'
+					message += '1hr change: {:5}\n\t'
+					message += 'btc val: {:14}\n\t'
+					message += 'USD: ${:6}'
+					message = message.format(sym, ch_24h, ch_1h, btc_val, usd_val) 
+					self.slack_client.api_call("chat.postMessage", channel=channel, 
+									text=message, as_user=True)
+	def add_coin(self, coin, channel):
+		r = requests.get(self.api_url)
+		coins = r.json()		
+		
+		for c in coins:
+			if c['symbol'] == coin.upper():
+				self.config['COINS'][coin.upper()] = coin.upper()
+				with open('config.ini', 'w') as config_file:
+					self.config.write(config_file)
 
-# def get_articles_count():
-	
+				msg = "Adding new coin succeeded."
+				self.slack_client.api_call("chat.postMessage", channel=channel, text=msg, as_user=True)								
 
-
-
+				return
+		error_msg = 'No coin by that symbol found in API. Sorry :('
+		self.slack_client.api_call("chat.postMessage", channel=self.reporting_channel, text=error_msg, as_user=True)
+		return
+		
 if __name__ == "__main__":
 	capstone_bot().start()
