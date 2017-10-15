@@ -135,6 +135,7 @@ class capstone_bot(object):
 					ch_24h = c['percent_change_24h']
 					ch_24h += '%'				
 					ch_1h = c['percent_change_1h']
+					ch_1h += '%'
 					btc_val = c['price_btc']
 					usd_val = c['price_usd']
 				
