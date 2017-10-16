@@ -190,6 +190,9 @@ class capstone_bot(object):
 		error_msg = 'No coin by that symbol found in API. Sorry :('
 		self.slack_client.api_call("chat.postMessage", channel=self.reporting_channel, text=error_msg, as_user=True)
 		return
+	
+
+
 	def refresh_coins(self):
 
 		self.config.read('config.ini')		
