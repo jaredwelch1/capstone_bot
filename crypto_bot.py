@@ -5,6 +5,10 @@ import datetime
 from _thread import *
 import requests
 import configparser
+import logging
+
+logging.basicConfig(filename='info.log', level=logging.DEBUG)
+
 
 # channel for capstone_bot_testing
 # C52Q0EE0N
@@ -35,8 +39,7 @@ class capstone_bot(object):
 
 		self.config.read('config.ini')
 		
-		for sym in self.config['COINS']:
-			self.tracked_coins.append(sym.upper())
+		self.refresh_coins()
 		
 
 		self.api_url = 'https://api.coinmarketcap.com/v1/ticker/'
@@ -56,7 +59,8 @@ class capstone_bot(object):
 					targetDate += datetime.timedelta(hours = 1)
 					targetHour = targetDate.hour
 					self.postReport()
-
+					logging.debug('Error with the time stuff. Target hour: ' + str(targetHour))
+					logging.debug('Here is the datetime.datetime.now().hou: ' + str(datetime.datetime.now().hour))
 
 				output = self.parse_slack_output(self.slack_client.rtm_read())
 				if output:
@@ -186,6 +190,13 @@ class capstone_bot(object):
 		error_msg = 'No coin by that symbol found in API. Sorry :('
 		self.slack_client.api_call("chat.postMessage", channel=self.reporting_channel, text=error_msg, as_user=True)
 		return
+	def refresh_coins(self):
+
+		self.config.read('config.ini')		
+
+		for sym in self.config['COINS']:
+			self.tracked_coins.append(sym.upper())
+
 		
 if __name__ == "__main__":
 	capstone_bot().start()

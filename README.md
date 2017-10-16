@@ -1,7 +1,9 @@
 # crypto_bot
 ## ToDo
 
-- Put tokens in virtual env 
+- Need to use sched to make every hour report
+
+- Put tokens in virtual env [ X ] 
 
 - Create ability to report each hour on top 10 growth on a predefined list of coins. (or maybe can change from a command top X)
 
@@ -10,6 +12,8 @@
 - allow a virtual bank account, activated by using "create account <name>"
 
 	- default amount to a predefined value?
+
+	- use database to track account data + coins + amount invested for acct
 
 - report current value in a concise way when asked for any crypto in:
 
