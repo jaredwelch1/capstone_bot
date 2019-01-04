@@ -1,4 +1,7 @@
 # crypto_bot
+
+This is a chat bot for slack, designed to integrate cryptocurrency information and tooling into slack for convenient use.
+
 ## ToDo
 
 - Need to use sched to make every hour report
